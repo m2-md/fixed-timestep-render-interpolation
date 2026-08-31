@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Metronomlu Fizik — Sabit Adım + Render Enterpolasyonu</title>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        padding: 20px 0;
+        background: #1c1917;
+        color: #e7e5e4;
+        font-family: system-ui, sans-serif;
+      }
+      canvas {
+        background: #292524;
+        border-radius: 8px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+      }
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        align-items: center;
+        justify-content: center;
+        max-width: 800px;
+      }
+      label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        user-select: none;
+      }
+      input[type="range"] {
+        width: 160px;
+      }
+      #hud {
+        font-variant-numeric: tabular-nums;
+        color: #f472b6;
+      }
+      code {
+        color: #a8a29e;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="game" width="800" height="600"></canvas>
+    <div class="controls">
+      <label><input type="checkbox" id="interp" checked /> Enterpolasyon</label>
+      <label><input type="checkbox" id="slow" /> Düşük FPS simüle et</label>
+      <label>
+        Fizik Hz:
+        <input type="range" id="hz" min="4" max="60" step="1" value="60" />
+        <span id="hzval">60</span>
+      </label>
+      <span id="hud">— FPS</span>
+    </div>
+    <p>
+      <code
+        >Fizik Hz'i 4'e çek → enterpolasyon KAPALI ışınlanır, AÇIK
+        akar.</code
+      >
+    </p>
+    <script type="module" src="/src/demo.ts"></script>
+  </body>
+</html>
