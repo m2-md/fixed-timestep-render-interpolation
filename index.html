@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="tr">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Metronomlu Fizik — Sabit Adım + Render Enterpolasyonu</title>
+    <title>Fixed Timestep Game Loop with Render Interpolation</title>
     <style>
       body {
         margin: 0;
@@ -51,10 +51,10 @@
   <body>
     <canvas id="game" width="800" height="600"></canvas>
     <div class="controls">
-      <label><input type="checkbox" id="interp" checked /> Enterpolasyon</label>
-      <label><input type="checkbox" id="slow" /> Düşük FPS simüle et</label>
+      <label><input type="checkbox" id="interp" checked /> Interpolation</label>
+      <label><input type="checkbox" id="slow" /> Simulate low FPS</label>
       <label>
-        Fizik Hz:
+        Physics Hz:
         <input type="range" id="hz" min="4" max="60" step="1" value="60" />
         <span id="hzval">60</span>
       </label>
@@ -62,8 +62,8 @@
     </div>
     <p>
       <code
-        >Fizik Hz'i 4'e çek → enterpolasyon KAPALI ışınlanır, AÇIK
-        akar.</code
+        >Set Physics Hz to 4 → Interpolation OFF teleports, ON
+        flows smoothly.</code
       >
     </p>
     <script type="module" src="/src/demo.ts"></script>

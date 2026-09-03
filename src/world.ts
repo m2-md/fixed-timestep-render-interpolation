@@ -1,14 +1,14 @@
 import { type Vec2, vec, add, scale } from "./vec";
 
 export interface Body {
-  pos: Vec2; // şimdiki (curr) konum
-  prev: Vec2; // bir önceki tık'taki konum — enterpolasyon için
+  pos: Vec2; // current (curr) position
+  prev: Vec2; // position at previous tick — for interpolation
   vel: Vec2;
   radius: number;
   bounciness: number;
 }
 
-// prev, pos ile aynı başlar: ilk karede enterpolasyon sıçratmaz.
+// prev starts identical to pos: prevents interpolation snap on the first frame.
 export function createBody(
   x: number,
   y: number,
@@ -41,7 +41,7 @@ export class World {
     return b;
   }
 
-  // Adımdan ÖNCE çağrılır: prev = curr. Enterpolasyonun "geçmiş" ucu.
+  // Called before step: prev = curr. The "past" endpoint of interpolation.
   snapshot() {
     for (const b of this.bodies) {
       b.prev.x = b.pos.x;
@@ -49,7 +49,7 @@ export class World {
     }
   }
 
-  // Tek SABİT adım — dt her çağrıda aynı (STEP) gelir.
+  // Single FIXED step — dt is identical (STEP) on every call.
   step(dt: number) {
     for (const b of this.bodies) {
       b.vel = add(b.vel, scale(this.gravity, dt)); // semi-implicit Euler

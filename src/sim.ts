@@ -1,12 +1,12 @@
 import { World } from "./world";
 
 export interface StepperOpts {
-  step?: number; // sabit fizik adımı (saniye)
-  maxSteps?: number; // kare başına en fazla tık — ölüm sarmalı koruması
-  maxFrame?: number; // tek karenin üst sınırı (saniye)
+  step?: number; // fixed physics step (seconds)
+  maxSteps?: number; // max ticks per frame — spiral of death protection
+  maxFrame?: number; // upper bound of a single frame (seconds)
 }
 
-const EPS = 1e-9; // kayan nokta payı: acc == step sınırında tık'ı kaçırmamak için
+const EPS = 1e-9; // floating-point tolerance: avoid missing a tick at the acc == step boundary
 
 export class Accumulator {
   acc = 0;
@@ -48,7 +48,7 @@ export function runFixed(
   return world;
 }
 
-// Serideki ESKİ yaklaşım — karşılaştırma için: değişken dt ile doğrudan adımla.
+// Old approach in the series — for comparison: direct step with variable dt.
 export function runVariable(
   makeWorld: () => World,
   frames: number[],

@@ -10,13 +10,13 @@ const makeWorld = () => {
   return w;
 };
 
-describe("sabit adımlı döngü deterministiktir", () => {
-  // Aynı 10 saniyelik toplam zaman, üç farklı kare bölünmesi:
+describe("fixed-timestep loop is deterministic", () => {
+  // Same 10-second total time, three different frame splits:
   const framesA = Array(600).fill(STEP); // 60 FPS
-  const framesB = Array(150).fill(4 * STEP); // 15 FPS (kare başına 4 tık)
-  const framesC = Array(300).fill(2 * STEP); // 30 FPS (kare başına 2 tık)
+  const framesB = Array(150).fill(4 * STEP); // 15 FPS (4 ticks per frame)
+  const framesC = Array(300).fill(2 * STEP); // 30 FPS (2 ticks per frame)
 
-  it("kare zamanlamasından bağımsız BİREBİR aynı durum verir", () => {
+  it("produces EXACTLY the same state regardless of frame timing", () => {
     const a = runFixed(makeWorld, framesA).bodies[0];
     const b = runFixed(makeWorld, framesB).bodies[0];
     const c = runFixed(makeWorld, framesC).bodies[0];
@@ -26,26 +26,26 @@ describe("sabit adımlı döngü deterministiktir", () => {
     expect(a.vel).toEqual(b.vel);
   });
 
-  it("değişken-dt sürüm ise ıraksar (determinizm yok)", () => {
-    // İlk duvar temasından ÖNCE, serbest düşüşte karşılaştır: semi-implicit
-    // Euler'in g·dt² terimi dt'ye göre farklı konum verir (settle olmadan).
-    const freeA = Array(48).fill(STEP); // 0.8 sn, 60 FPS
-    const freeB = Array(12).fill(4 * STEP); // 0.8 sn, 15 FPS
+  it("variable-dt version diverges (no determinism)", () => {
+    // Before the first wall contact, compare in free fall: semi-implicit
+    // Euler's g·dt² term yields different positions depending on dt (without settling).
+    const freeA = Array(48).fill(STEP); // 0.8 s, 60 FPS
+    const freeB = Array(12).fill(4 * STEP); // 0.8 s, 15 FPS
     const a = runVariable(makeWorld, freeA).bodies[0];
     const b = runVariable(makeWorld, freeB).bodies[0];
 
-    expect(a.pos).not.toEqual(b.pos); // aynı toplam süre, farklı sonuç
+    expect(a.pos).not.toEqual(b.pos); // same total duration, different result
   });
 });
 
-describe("enterpolasyon matematiği", () => {
+describe("interpolation math", () => {
   const a = vec(0, 0);
   const b = vec(10, 20);
 
-  it("alpha=0 önceki durumu verir", () =>
+  it("alpha=0 yields the previous state", () =>
     expect(lerp(a, b, 0)).toEqual(vec(0, 0)));
-  it("alpha=1 şimdiki durumu verir", () =>
+  it("alpha=1 yields the current state", () =>
     expect(lerp(a, b, 1)).toEqual(vec(10, 20)));
-  it("alpha=0.5 tam ortayı verir", () =>
+  it("alpha=0.5 yields the exact midpoint", () =>
     expect(lerp(a, b, 0.5)).toEqual(vec(5, 10)));
 });

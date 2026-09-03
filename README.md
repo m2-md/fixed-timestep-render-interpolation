@@ -1,43 +1,45 @@
-# Metronomlu Fizik — Sabit Adım + Render Enterpolasyonu
+# Physics with a Metronome — Fixed Timestep + Render Interpolation
 
-"Metronomlu Fizik: TypeScript'te Sabit Adımlı Oyun Döngüsü ve Render
-Enterpolasyonu" makalesinin çalışan kodu. Değişken-dt'li fizik döngüsünü, her
-makinede birebir aynı sonucu veren **sabit adımlı** (fixed timestep) deterministik
-bir döngüye yükseltir ve çizimi fizikten ayırıp iki tık arasını **enterpole** eder.
+Working code for the article "Physics with a Metronome: Fixed-Timestep Game Loop
+and Render Interpolation in TypeScript". It upgrades a variable-dt physics loop
+into a deterministic **fixed timestep** loop that produces byte-for-byte identical
+results on every machine, then decouples drawing from physics and **interpolates**
+between two ticks.
 
-İçindekiler:
+What's inside:
 
-1. **Mini fizik motoru** (`src/world.ts`) — semi-implicit Euler + duvar sekmesi.
-   `Body`'ye enterpolasyon için `prev` alanı, `World`'e adımdan önce çağrılan
-   `snapshot()` eklenmiştir.
-2. **Accumulator döngüsü** (`src/sim.ts`) — gerçek zamanı biriktirip sabit `STEP`
-   dilimleriyle adımlar; ölüm sarmalı koruması (`maxFrame` kırpma + `maxSteps`
-   tavanı + borç silme) ve `alpha = acc / STEP` enterpolasyon oranı.
-3. **Canlı demo** (`src/demo.ts` + `index.html`) — zıplayan top, enterpolasyon
-   aç/kapa, "düşük FPS simüle et" ve "Fizik Hz" kaydırıcısı, canlı FPS/tık sayacı.
-4. **Determinizm kanıtı** (`test/sim.test.ts`) — aynı toplam zaman, farklı kare
-   bölünmeleri → sabit adım birebir aynı, değişken-dt ıraksar.
+1. **Mini physics engine** (`src/world.ts`) — semi-implicit Euler + wall bounce.
+   `Body` gains a `prev` field for interpolation, and `World` gains `snapshot()`,
+   which is called before each step.
+2. **Accumulator loop** (`src/sim.ts`) — accumulates real time and steps in fixed
+   `STEP` slices; includes death-spiral protection (`maxFrame` clamping + `maxSteps`
+   ceiling + debt clearing) and the `alpha = acc / STEP` interpolation ratio.
+3. **Live demo** (`src/demo.ts` + `index.html`) — bouncing ball, interpolation
+   on/off, a "simulate low FPS" toggle and a "Physics Hz" slider, live FPS/tick counters.
+4. **Determinism proof** (`test/sim.test.ts`) — same total time, different frame
+   splits → fixed step stays byte-identical, variable dt diverges.
 
-## Kurulum
+## Setup
 
 ```bash
 npm install
 ```
 
-## Çalıştırma
+## Running
 
 ```bash
 npm run dev
 ```
 
-`http://localhost:5173/` adresinde demo açılır. Tarayıcıda tek başına çalışır;
-arka planda ayrı bir Node sunucu süreci gerekmez (Vite dev sunucusu yeterli).
+The demo opens at `http://localhost:5173/`. It runs entirely in the browser; no
+separate Node server process is needed in the background (the Vite dev server is enough).
 
-**Ne deneyin:** "Fizik Hz" kaydırıcısını 4'e çekin. Enterpolasyon **kapalıyken**
-top saniyede 4 kez ışınlanır (jitter görünür); **açtığınız an** aynı 4 tık'ın arası
-60 FPS'le doldurulur, top kayarcasına akar. Fizik ikisinde de birebir aynı; değişen
-tek şey gözünüzün gördüğü. "Düşük FPS simüle et" ile büyük `frameTime` üretip
-accumulator'ın her karede birden çok tık boşaltmasını gözleyin.
+**What to try:** drag the "Physics Hz" slider down to 4. With interpolation **off**,
+the ball teleports 4 times per second (visible jitter); **the moment you turn it on**,
+the gap between those same 4 ticks is filled in at 60 FPS and the ball glides. The
+physics is identical in both cases; the only thing that changed is what your eye sees.
+Use "simulate low FPS" to produce a large `frameTime` and watch the accumulator drain
+multiple ticks in a single frame.
 
 ## Test
 
@@ -45,13 +47,13 @@ accumulator'ın her karede birden çok tık boşaltmasını gözleyin.
 npm test
 ```
 
-Beklenen: 5 test geçer.
+Expected: 5 tests pass.
 
-- **Determinizm (3 assert):** aynı 10 saniye 60/15/30 FPS'e bölünür; sabit-adım
-  durumu (`pos`, `vel`) üçünde de `toEqual` — bit özdeş.
-- **Divergence:** aynı 0.8 saniyelik serbest düşüş değişken-dt ile farklı `dt`'lere
-  bölününce `not.toEqual` — semi-implicit Euler'in `dt`'ye bağımlılığı.
-- **Enterpolasyon matematiği (3 test):** `lerp` için `t=0`, `t=1`, `t=0.5`.
+- **Determinism (3 asserts):** the same 10 seconds is split into 60/15/30 FPS; the
+  fixed-step state (`pos`, `vel`) is `toEqual` in all three — bit identical.
+- **Divergence:** the same 0.8 seconds of free fall, split into different `dt`s under
+  variable dt, gives `not.toEqual` — semi-implicit Euler's dependence on `dt`.
+- **Interpolation math (3 tests):** `lerp` at `t=0`, `t=1`, `t=0.5`.
 
 ## Bench
 
@@ -59,22 +61,22 @@ Beklenen: 5 test geçer.
 npm run bench
 ```
 
-Deterministik ölçüm (tarayıcı yok, `vite-node`): aynı 10 saniyeyi üç FPS
-senaryosuyla besler. Örnek çıktı:
+A deterministic measurement (no browser, `vite-node`): it feeds the same 10 seconds
+through three FPS scenarios. Sample output:
 
 ```
-SABİT ADIM (accumulator) — aynı toplam süre, üç kare bölünmesi:
+FIXED STEP (accumulator) — same total duration, three frame splits:
   60 FPS (600x)    pos=(  393.120000,  580.000000)  vel=(  140.800000,   -6.666667)
   15 FPS (150x4)   pos=(  393.120000,  580.000000)  vel=(  140.800000,   -6.666667)
   30 FPS (300x2)   pos=(  393.120000,  580.000000)  vel=(  140.800000,   -6.666667)
-  -> max |Δpos| = (0, 0)  BİREBİR AYNI
+  -> max |Δpos| = (0, 0)  EXACTLY IDENTICAL
 
-DEĞİŞKEN dt (eski döngü) — aynı toplam süre, iki kare bölünmesi:
+VARIABLE dt (old loop) — same total duration, two frame splits:
   60 FPS (600x)    pos=(  393.120000,  580.000000)  vel=(  140.800000,   -6.666667)
   15 FPS (150x4)   pos=(  386.080000,  580.000000)  vel=(  140.800000,  -26.666387)
-  -> |Δpos| = (7.0400, 0.0000)  IRAKSADI
+  -> |Δpos| = (7.0400, 0.0000)  DIVERGED
 
-Özet: sabit adım 0 px ıraksar, değişken dt 7.0 px ıraksar (aynı 10 sn).
+Summary: fixed step diverges 0 px, variable dt diverges 7.0 px (same 10 s).
 ```
 
 ## Build
@@ -83,23 +85,23 @@ DEĞİŞKEN dt (eski döngü) — aynı toplam süre, iki kare bölünmesi:
 npm run build
 ```
 
-`tsc` (tip kontrolü, `noEmit`) + `vite build` (üretim derlemesi). İkisi de hatasız
-geçmeli.
+`tsc` (type check, `noEmit`) + `vite build` (production build). Both must pass
+without errors.
 
-## Dosya yapısı
+## File layout
 
 ```
 src/
-  vec.ts        # Vec2 + vec/add/scale + lerp (enterpolasyon)
+  vec.ts        # Vec2 + vec/add/scale + lerp (interpolation)
   world.ts      # Body (prev), createBody, World.snapshot/step/collideWalls
-  sim.ts        # Accumulator (EPS'li), runFixed, runVariable
-  demo.ts       # Tarayıcı demosu: rAF döngüsü + kontroller + HUD
-  bench-cli.ts  # Deterministik bench (vite-node)
+  sim.ts        # Accumulator (with EPS), runFixed, runVariable
+  demo.ts       # Browser demo: rAF loop + controls + HUD
+  bench-cli.ts  # Deterministic bench (vite-node)
 test/
-  sim.test.ts   # Determinizm + divergence + lerp testleri
-index.html      # Canvas + kontroller
+  sim.test.ts   # Determinism + divergence + lerp tests
+index.html      # Canvas + controls
 ```
 
-## Lisans
+## License
 
 MIT

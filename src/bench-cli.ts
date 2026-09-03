@@ -1,5 +1,5 @@
-// Deterministik bench: aynı 10 saniyeyi farklı kare bölünmeleriyle besle.
-// Sabit adım → BİREBİR aynı. Değişken dt → ıraksar. Node süreci, tarayıcı yok.
+// Deterministic bench: feed the same 10 seconds with different frame splits.
+// Fixed step -> EXACTLY identical. Variable dt -> diverges. Node process, no browser.
 import { World, createBody } from "./world";
 import { runFixed, runVariable } from "./sim";
 
@@ -11,7 +11,7 @@ const makeWorld = () => {
   return w;
 };
 
-// Üç FPS senaryosu, hepsi 10 saniye toplam:
+// Three FPS scenarios, all 10 seconds total:
 const framesA = Array(600).fill(STEP); // 60 FPS
 const framesB = Array(150).fill(4 * STEP); // 15 FPS
 const framesC = Array(300).fill(2 * STEP); // 30 FPS
@@ -24,7 +24,7 @@ const show = (label: string, w: World) => {
   );
 };
 
-console.log("SABİT ADIM (accumulator) — aynı toplam süre, üç kare bölünmesi:");
+console.log("FIXED STEP (accumulator) — same total duration, three frame splits:");
 const fa = runFixed(makeWorld, framesA);
 const fb = runFixed(makeWorld, framesB);
 const fc = runFixed(makeWorld, framesC);
@@ -40,11 +40,11 @@ const fixedMaxDy = Math.max(
   Math.abs(fa.bodies[0].pos.y - fc.bodies[0].pos.y),
 );
 console.log(
-  `  -> max |Δpos| = (${fixedMaxDx}, ${fixedMaxDy})  ${fixedMaxDx === 0 && fixedMaxDy === 0 ? "BİREBİR AYNI" : "FARK VAR!"}`,
+  `  -> max |Δpos| = (${fixedMaxDx}, ${fixedMaxDy})  ${fixedMaxDx === 0 && fixedMaxDy === 0 ? "EXACTLY IDENTICAL" : "DIFFERENCE DETECTED!"}`,
 );
 
 console.log(
-  "\nDEĞİŞKEN dt (eski döngü) — aynı toplam süre, iki kare bölünmesi:",
+  "\nVARIABLE dt (old loop) — same total duration, two frame splits:",
 );
 const va = runVariable(makeWorld, framesA);
 const vb = runVariable(makeWorld, framesB);
@@ -53,9 +53,9 @@ show("15 FPS (150x4)", vb);
 const varDx = Math.abs(va.bodies[0].pos.x - vb.bodies[0].pos.x);
 const varDy = Math.abs(va.bodies[0].pos.y - vb.bodies[0].pos.y);
 console.log(
-  `  -> |Δpos| = (${varDx.toFixed(4)}, ${varDy.toFixed(4)})  IRAKSADI`,
+  `  -> |Δpos| = (${varDx.toFixed(4)}, ${varDy.toFixed(4)})  DIVERGED`,
 );
 
 console.log(
-  `\nÖzet: sabit adım 0 px ıraksar, değişken dt ${Math.hypot(varDx, varDy).toFixed(1)} px ıraksar (aynı 10 sn).`,
+  `\nSummary: fixed step diverges 0 px, variable dt diverges ${Math.hypot(varDx, varDy).toFixed(1)} px (same 10 s).`,
 );

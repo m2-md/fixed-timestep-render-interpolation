@@ -6,14 +6,14 @@ const ctx = canvas.getContext("2d")!;
 
 const world = new World(canvas.width, canvas.height, 900);
 const ball = world.add(createBody(120, 80, 24, 0.85));
-ball.vel = vec(220, 0); // yana doğru bir başlangıç hızı
+ball.vel = vec(220, 0); // initial sideways velocity
 
-let STEP = 1 / 60; // "Fizik Hz" kaydırıcısı çalışma anında değiştirir
+let STEP = 1 / 60; // "Physics Hz" slider changes this at runtime
 const MAX_STEPS = 5;
 const MAX_FRAME = 0.25;
 
-let interpolate = true; // düğmeyle değişir
-let slowMotion = false; // "düşük FPS simüle et" — kareyi bilerek yavaşlatır
+let interpolate = true; // toggled by button
+let slowMotion = false; // "simulate low FPS" — intentionally slows down frames
 let acc = 0;
 let last = performance.now();
 
@@ -22,8 +22,8 @@ function frame(now: number) {
   last = now;
   if (frameTime > MAX_FRAME) frameTime = MAX_FRAME;
 
-  // Düşük FPS'i simüle etmek için gerçek zamanı olduğu gibi kullanırız;
-  // slowMotion açıkken render'ı kasıtlı geciktirerek büyük frameTime üretiriz.
+  // To simulate low FPS, we use wall-clock time as is;
+  // when slowMotion is active, we intentionally delay rendering to produce large frameTime.
   acc += frameTime;
 
   let steps = 0;
@@ -40,7 +40,7 @@ function frame(now: number) {
   updateHud(frameTime, steps);
 
   if (slowMotion) {
-    // Ağır bir kare / uzun kareyi taklit et: bir sonraki frame'i geciktir.
+    // Simulate a heavy / long frame: delay the next frame.
     setTimeout(() => requestAnimationFrame(frame), 90);
   } else {
     requestAnimationFrame(frame);
@@ -58,7 +58,7 @@ function render(alpha: number) {
   }
 }
 
-// --- Kontroller: index.html'deki üç giriş demoyu canlı sürer ---
+// --- Controls: the three inputs in index.html drive the live demo ---
 const interpEl = document.querySelector<HTMLInputElement>("#interp")!;
 const slowEl = document.querySelector<HTMLInputElement>("#slow")!;
 const hzEl = document.querySelector<HTMLInputElement>("#hz")!;
@@ -69,15 +69,15 @@ interpEl.addEventListener("change", () => (interpolate = interpEl.checked));
 slowEl.addEventListener("change", () => (slowMotion = slowEl.checked));
 hzEl.addEventListener("input", () => {
   const hz = Number(hzEl.value);
-  STEP = 1 / hz; // metronomun tık aralığını yeniden ayarla
+  STEP = 1 / hz; // readjust metronome tick interval
   hzOut.textContent = String(hz);
 });
 
 let fps = 0;
 function updateHud(frameTime: number, steps: number) {
-  // Basit üstel ortalama ile FPS'i yumuşat.
+  // Smooth FPS with a simple exponential moving average.
   fps += (1 / Math.max(frameTime, 1e-3) - fps) * 0.1;
-  hud.textContent = `${fps.toFixed(0)} FPS • ${steps} tık/kare`;
+  hud.textContent = `${fps.toFixed(0)} FPS • ${steps} ticks/frame`;
 }
 
 requestAnimationFrame(frame);

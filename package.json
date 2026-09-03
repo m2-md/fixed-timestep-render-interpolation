@@ -1,7 +1,7 @@
 {
   "name": "fixed-timestep-render-interpolation",
   "version": "1.0.0",
-  "description": "Sabit adımlı (fixed timestep) deterministik fizik döngüsü + render enterpolasyonu — TypeScript + Vite + vitest",
+  "description": "Deterministic fixed timestep physics simulation decoupled from variable display refresh rates using state accumulator and alpha render interpolation in TypeScript.",
   "type": "module",
   "license": "MIT",
   "scripts": {
