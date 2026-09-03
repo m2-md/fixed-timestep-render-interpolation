@@ -1,4 +1,3 @@
-
 # Metronomlu Fizik: TypeScript'te Sabit Adımlı Oyun Döngüsü ve Render Enterpolasyonu
 
 *Serideki değişken-dt döngüsünü sabit adımlı (fixed timestep), deterministik bir fizik motoruna yükseltiyoruz — fizik her makinede birebir aynı, çizim yine ekran hızında ve pürüzsüz.*
