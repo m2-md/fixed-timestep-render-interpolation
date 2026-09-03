@@ -1,5 +1,9 @@
 # Physics with a Metronome — Fixed Timestep + Render Interpolation
 
+<!-- LINKS:BEGIN — üretildi: scripts/sync-repo-links.py · elle düzenleme -->
+**▶ [Live demo](https://m2-md.github.io/fixed-timestep-render-interpolation/)** · [Source](https://github.com/m2-md/fixed-timestep-render-interpolation)
+<!-- LINKS:END -->
+
 Working code for the article "Physics with a Metronome: Fixed-Timestep Game Loop
 and Render Interpolation in TypeScript". It upgrades a variable-dt physics loop
 into a deterministic **fixed timestep** loop that produces byte-for-byte identical
