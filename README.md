@@ -4,6 +4,8 @@
 **▶ [Live demo](https://m2-md.github.io/fixed-timestep-render-interpolation/)** · [Source](https://github.com/m2-md/fixed-timestep-render-interpolation)
 <!-- LINKS:END -->
 
+> Deterministic fixed timestep physics simulation decoupled from variable display refresh rates using state accumulator and alpha render interpolation in TypeScript.
+
 Working code for the article "Physics with a Metronome: Fixed-Timestep Game Loop
 and Render Interpolation in TypeScript". It upgrades a variable-dt physics loop
 into a deterministic **fixed timestep** loop that produces byte-for-byte identical
@@ -37,6 +39,9 @@ npm run dev
 
 The demo opens at `http://localhost:5173/`. It runs entirely in the browser; no
 separate Node server process is needed in the background (the Vite dev server is enough).
+
+> Do not open `index.html` with `file://` — the ES modules will not resolve and you
+> will get a blank screen. The Vite dev server is required.
 
 **What to try:** drag the "Physics Hz" slider down to 4. With interpolation **off**,
 the ball teleports 4 times per second (visible jitter); **the moment you turn it on**,
